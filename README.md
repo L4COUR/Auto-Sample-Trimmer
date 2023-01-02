@@ -1,6 +1,10 @@
+# Auto-Sample-Trimmer
+
 kan vi anvender den viden vi gennem [[@wakefield_generating_2022_Chapter2_ Modular (Arithmetic of) Time]] har opnået til at skabe en patch hvor stilheden først i et sample kan slettes således at starten af samplet i en buffer er lignet op med den første transient?
 ## Understanding what we need
-- ![[trimming-sample-start-gen.png]]
+
+- ![](./media/trimming-sample-start-gen.png)
+
 <details>
 <pre><code>
 ----------begin_max5_patcher----------
@@ -58,14 +62,14 @@ sVCAMApyYsDzX.pcxVxr7t5ygnPDW8YPb0m.Q6O+g9+zGt9ydP7IOz0m6PQB
 
 - in order to get the time value of the GREEN, i first need to be able to detect RED.
 ## How to detect the ideal start position
-- ![[detecting-ideal-sample-start.png]]
+- ![](./media/detecting-ideal-sample-start.png)
 - finding the point in time of the transient start can be done by utilizing a *delta,abs,> 0.1* chain which looks at the sample-frame before and after and compares them in order to determine when an amplitude value is higher then the 0.1 specified by the comparator operator.
 - detecting the ideal start value we can turn this point in time into a trigger we will use to figure out how much time has passed between the original start of the sample and the ideal-start trigger we created.
 ## How to calculate the time to be trimmed
 - using the same chain of *delta,abs, > 0.1* before **out 2 ramp-signal** we can turn the ramp into a trigger which we can use to reset an **accum** operator to sync and count the the start time of the buffer playback.
 - we will then hold the value from the **accum** operator with the **latch** operator, which will latch on to the value = time passed between original start point and ideal-start trigger and output the value at **out 4** converting samps into milliseconds (ms) using **sampstoms** operator.
 - the **accum** operator requires a specific amount to add every frame. which is a value we calculate from buffer-length(samps) / samplerate. the length of the buffer can also be run through a sampstoms and send out of an outlet so it can be utilized in the parent patch for the waveform object.
-- ![[calculating-trimtime-samples-ms_2.png]]
+- ![](./media/calculating-trimtime-samples-ms_2.png)
 <details>
 <pre><code>
 ----------begin_max5_patcher----------
@@ -145,14 +149,14 @@ zN12w5XcWre9ue9+ABUr9cA
 
 - this patch works great with this particular sample, and in generel samples that has a strong transient and silence before. however the question is what about other samples with a weaker transient, how does it work for those? is the patch also able to determine wether a sample that is already perfect really needs a trimming?
 - idet patchen ved at anvende sample operatoren efter at blive genåbnet ikke fungere som den gjorde før tænker jeg at jeg måske istedet for sample bør bruge peek operator til at gå igennem index sample for index sample med henblik på at finde det precise sample startpunkt for at hvilket som helst sample med et meget precist threshold, der gør det uafhængingt af hvorvidt samplet har en stærk transient.
-- ![[peek-analysis-index.png]]
+- ![](./media/peek-analysis-index.png)
 ## one parameter sample trimmer
 - from my previous peek based gen algorithm I replaced the "/ samplerate, / 2" operators with the sampstoms operator.
 - I also replaced the value in the comparator of 0.000001 with a parameter variable called threshold, this value determines the threshold for when an amplitude is considered high enough that the sample start point will be set there.
-![[Auto-waveform-trimmer-genpatch.png]]
+![](./media/Auto-waveform-trimmer-genpatch.png)
 - in my upgraded version I also wanted the autotrimmer to trim any unnecessary silence from the end off; this was done by reusing the same algorithm from before but using a combination of the buffer length from the buffer operator and a operator which would count backwards from the end of the sample.
 - using the threshold variable again for the comparator value and with the same function as above but this time determining the sample end point.
-![[Auto-waveform-trimmer-parentpatch.png]]
+![](./media/Auto-waveform-trimmer-parentpatch.png)
 - the gen~ auto-waveform-trimmer patch fits nicely together with the max object waveform~ where the values determining start and end point of the sample from the peek index analysis in gen~ has already been converted to milliseconds (ms) which is the value used by waveform~ to set the loop start and end point.
 - adding a floating point numbox via a threshold $1 message box connected to the gen~ enables the control of the variable and makes it possible for the user using one parameter to trim a sample clips start and end positions with surgical sample-acurate precision.
 ## Cropping
@@ -232,7 +236,7 @@ Mz0Tsg6lR1lXJ4OETBsPNgflDC1jfcF.cdSEgtEC4dAcTIU8kOyNBR7kOuNe
 </details>
 
 ## exhanging accum for a phasor
-![[accum-exchanged-phasor.png]]
+![](./media/accum-exchanged-phasor.png)
 to make the patch more effective I exchanged the accum and 1 operators for a phasor and scale object and further utlizing the buffer length attribute. This give the same but maybe slightly more precise results.
 
 
@@ -384,10 +388,10 @@ W6pLKt3jnKFiKNA5Wb5yu9jmO7oN+xSbt7zl22IMWjS3S+8S+ev+xgIL
 fixing this bugs now also means that cropping works and is saved to the correspondent polybuffer.
 
 ## fine-tune adjustments for start and end
-![[finetune-adjustment.png]]
+![](./media/finetune-adjustment.png)
 the thrshold control makes it easy to quickly trim the start and end point to the exact sample-frames however depending the the samples form it the trimming can sometimes be a little aggressive. in order to prevent to aggressive trimming I have added some fine adjustment control that allows for readjusting the positions before commiting to a crop of the sample potentially losing sample data.
 in order to specify the range of the parameters I needed to know the length in ms of the selection of the sample, which was easy to find by subtracting the sample start and sample end from the gen~ patcher.
-![[subtracting-start-end.png]]
+![](./media/subtracting-start-end.png)
 I then divided this value by 2 so the adjustment selections cant overlap each other.
 
 ## Implementing layering techniques
@@ -521,7 +525,7 @@ L6NnK.lJUqdAfTcAXT8ZfnpcPn5R.nRC9TMA7Tp800G+We7+CJmyAXB
 </details>
 
 - in order to make the patch more easy to use i created a quick interface in presentation mode.
-![[interface-auto-trimmmer-layering.png]]
+![](./media/interface-auto-trimmmer-layering.png)
 ## Happy Accidents Generator (S-Layer)
 <details>
 <pre><code>
@@ -680,12 +684,12 @@ ud++Ga85wKA
 </code></pre>
 </details>
 
-![[HAG-Interface-trimmer.png]]
+![](./media/HAG-Interface-trimmer.png)
 inspired by the S-layer plugin I am adding UI multisliders for sample selections, start position, pitch control and volume per sample, which opens up great possibilities in per sample processing + the layering technique.
 - I added a way to record live from soundcard directly into the polybuffer what makes it really fast to record things and start manipulating the samples quickly.
 - by pressing the ADD-Buffer button and then pressing record you can keep splitting your recording up by continuing to add more buffers. once done recording hit the RECORD button again.
 ## Groove enhanced through gen~
-![[gengroove.png]]
+![](./media/gengroove.png)
 <details>
 <pre><code>
 ----------begin_max5_patcher----------
@@ -778,7 +782,7 @@ ZCA
 - in order to fix this bug I added a bool to the in 1 operator which would turn any signal thats not a 0 into a 1, chaining this with a == 0 comparator operator gave me a trigger for the latch. this worked perfectly since now the circuit that had to do with one-time playback remained inside the gen~ patcher environment ensuring the sample-acurate timing.
 - in order to make it possible to switch between one-time playback and looped playback I added a gate controlled by the in 2 loop binary toogle in the parent patch, providing a simple and clean way for control of playback.
 - all of these new opdates to the gengroove still works with playback in reverse, which makes this form of groove unique.
-![[gengroove2.0.png]]
+![](./media/gengroove2.0.png)
 
 ## Implemented the gen~ groove with the auto-trimmer patch
 <details>
@@ -966,7 +970,7 @@ rUE0IGGW5g3jigqSNBtN+32Z3idqSO1sLG4V8cbaoqmsu4e8M++PSp+6x
 - implemented the gen~ groove thus adding the functionality of playback reverse and also looping and variable speed playback. using simple and effective gen code.
 - there is still a slight problem with detecting the absolute end of playback which creates a bit of artifact in the single linear playmode. however this is minor bugs that can be perfected down the line.
 	- FIXED
-- ![[L4COUR-Auto-trimmer&GenGroovePlayback.png]]
+- ![](./media/L4COUR-Auto-trimmer&GenGroovePlayback.png)
 - 
 ## sources
-- https://cycling74.com/forums/trimming-leading-silence-from-buffer
+- [https://cycling74.com/forums/trimming-leading-silence-from-buffer](https://cycling74.com/forums/trimming-leading-silence-from-buffer)
